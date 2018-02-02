@@ -8,7 +8,7 @@ defmodule MainSystem do
 
     # Start broadcasting
     for peer <- peers, do:
-      send peer, {:broadcast, 10, 3000}
+      send peer, {:broadcast, 100, 3000}
 
   end
 end
