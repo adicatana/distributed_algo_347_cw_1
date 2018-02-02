@@ -9,7 +9,7 @@ defmodule Peer do
             end)
 
             me = self()
-            spawn Timefn -> Timeout.start(me, timeout) end
+            spawn fn -> Timeout.start(me, timeout) end
             next peers, initialMap, broadcasts_left
         end
     end
