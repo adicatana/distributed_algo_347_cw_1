@@ -1,20 +1,21 @@
 defmodule LPL do
-  def main(reliability) do
+  def start reliability do
     receive do
-      {:bind_beb, beb} -> next beb, reliability
+      { :bind_beb, beb } -> 
+        next beb, reliability
     end
   end
 
-  def next(beb, reliability) do
+  defp next beb, reliability do
     receive do
-      # get from app component
-      {:pl_send, dest, msg} ->
+      # Get from APP component
+      { :pl_send, dest, msg } ->
         if Enum.random(1..100) <= reliability do
-          send dest, {:msg, msg}
+          send dest, { :msg, msg }
         end
-      {:msg, from} ->
-        send beb, {:pl_deliver, from}
+      { :msg, from } ->
+        send beb, { :pl_deliver, from }
     end
-    next(beb, reliability)
+    next beb, reliability
   end
 end
