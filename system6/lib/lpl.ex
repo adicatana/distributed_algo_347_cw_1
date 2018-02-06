@@ -1,11 +1,11 @@
 defmodule LPL do
-  def main(reliability) do
+  def start reliability do
     receive do
       {:bind, beb} -> next beb, reliability
     end
   end
 
-  def next(beb, reliability) do
+  def next beb, reliability do
     receive do
       # get from beb component
       {:pl_send, to, msg} ->
@@ -15,6 +15,6 @@ defmodule LPL do
       {:msg, from, msg} ->
         send beb, {:pl_deliver, from, msg}
     end
-    next(beb, reliability)
+    next beb, reliability
   end
 end
