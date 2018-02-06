@@ -1,9 +1,15 @@
 defmodule MainSystem do
+
+
   def start do
     nPeers = 5
     lpl_reliability = 100
     me = self()
-    peers = for _ <- 0..nPeers - 1, do: spawn fn -> Peer.main(me, lpl_reliability) end
+
+    # Process 3 is going to die in 5 milliseconds
+    goingTodie = %{3 => 5}
+
+    peers = for i <- 0..nPeers - 1, do: spawn fn -> Peer.main(me, lpl_reliability, Map.get(goingTodie, i + 1, :infinity)) end
 
     pl_ids = for _ <- 0..nPeers - 1 do
       receive do
@@ -21,14 +27,5 @@ defmodule MainSystem do
       #(i) {:broadcast, 1000, 3000}
       #(ii) {:broadcast, 10_000_000, 3000}
 
-    # Have peer 3 exiting after 5 seconds
-    # send death signal after 5 seconds and extend peer to be able to handle it
-    timeout = 5000
-    process = 3
-    receive do
-    after
-      timeout ->
-        send Enum.at(pl_ids, process - 1), {:death}
-    end
   end
 end
