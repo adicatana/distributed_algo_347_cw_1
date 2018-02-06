@@ -2,11 +2,11 @@ defmodule Beb do
   def start do
     receive do
       {:bind, pl, rb} ->
-        wait_pls pl, rb
+        wait_peers pl, rb
     end
   end
 
-  defp wait_pls pl, rb do
+  defp wait_peers pl, rb do
     receive do
       {:bind_peers, peers} ->
         next pl, peers, rb
@@ -18,7 +18,7 @@ defmodule Beb do
       {:pl_deliver, from, msg} ->
         send rb, {:beb_deliver, from, msg}
         next pl, peers, rb
-      {:beb_broadcast, msg} -> 
+      {:beb_broadcast, msg} ->
         broadcast pl, peers, rb, msg
     end
   end
