@@ -6,7 +6,7 @@ defmodule PL do
     end
   end
 
-  def next app do
+  defp next app do
     receive do
       # Get from APP component
       {:pl_send, dest, msg} ->
