@@ -1,18 +1,20 @@
 defmodule PL do
-  def main do
+  def start do
     receive do
-      {:bind_beb, beb} -> next beb
+      {:bind_beb, beb} ->
+        next beb
     end
   end
 
-  def next(beb) do
+  defp next beb do
     receive do
-      # get from app component
+      # Get from APP component
       {:pl_send, dest, msg} ->
         send dest, {:msg, msg}
+      # Msg from other PL component        
       {:msg, from} ->
         send beb, {:pl_deliver, from}
     end
-    next(beb)
+    next beb
   end
 end

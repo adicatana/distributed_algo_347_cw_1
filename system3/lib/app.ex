@@ -1,22 +1,33 @@
-# Handle timeout and broadcast limit but it can't count the messages sent since it's not the one sending them!
-# Messages received and sent are coutned in beb and if a timeout occurs the App has to notify the beb to stop and print
+# Handle timeout and broadcast limit but it can't count the 
+# messages sent since it's not the one sending them!
+# Messages received and sent are coutned in beb and if a 
+# timeout occurs the APP has to notify the beb to stop and print
 # the information it has stored
 defmodule App do
-  def main do
+  def start do
     receive do
       {:bind_beb, beb} ->
-        receive do
-          {:bind_peers, peers} ->
-            receive do
-              {:broadcast, broadcasts_left, timeout} ->
-                me = self()
-                spawn fn -> Timeout.start(me, timeout) end
-                msg_report = Map.new(peers, fn peer ->
-                  {peer, {0, 0}}
-                end)
-                broadcast beb, peers, msg_report, broadcasts_left
-            end
-        end
+        wait_peers beb
+    end
+  end
+
+  defp wait_peers beb do
+    receive do
+      {:bind_peers, peers} ->
+        wait_broadcast beb, peers
+    end
+  end
+
+  defp wait_broadcast beb, peers do
+    receive do
+      {:broadcast, broadcasts_left, timeout} ->
+        app_id = self()
+        spawn fn -> Timeout.start app_id, timeout end
+   
+        msg_report = Map.new(peers, fn peer ->
+          {peer, {0, 0}}
+        end)
+        broadcast beb, peers, msg_report, broadcasts_left
     end
   end
 

@@ -1,8 +1,8 @@
 defmodule Peer do
-  def main(parent) do
-    app = spawn fn -> App.main() end
-    beb = spawn fn -> Beb.main() end
-    pl = spawn fn -> PL.main() end
+  def start parent do
+    app = spawn fn -> App.start() end
+    beb = spawn fn -> Beb.start() end
+    pl = spawn fn -> PL.start() end
 
     send app, {:bind_beb, beb}
     send beb, {:bind, pl, app}
@@ -16,9 +16,10 @@ defmodule Peer do
         send beb, {:bind_peers, pl_ids}
     end
 
-    # Forward broadcasting information to App component that acts as Peer
+    # Forward broadcasting information to APP component that acts as Peer
     receive do
-      {:broadcast, broadcasts_left, timeout} -> send app, {:broadcast, broadcasts_left, timeout}
+      {:broadcast, broadcasts_left, timeout} -> 
+        send app, {:broadcast, broadcasts_left, timeout}
     end
 
   end
