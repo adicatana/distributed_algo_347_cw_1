@@ -1,7 +1,10 @@
 defmodule Peer do
   def start parent do
-    app = spawn fn -> App.start() end
-    pl = spawn fn -> PL.start() end
+
+    peer_id = self()
+
+    app = spawn_link fn -> App.start(peer_id) end
+    pl = spawn_link fn -> PL.start() end
 
     send app, { :bind_pl, pl }
     send pl, { :bind_app, app }
@@ -16,6 +19,11 @@ defmodule Peer do
     receive do
       { :broadcast, broadcasts_left, timeout } -> 
         send app, { :broadcast, broadcasts_left, timeout }
+    end
+
+    receive do
+      { :timeout }
+        -> 0
     end
 
   end

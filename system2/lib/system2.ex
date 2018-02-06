@@ -20,7 +20,7 @@ defmodule System2 do
 
     # Start broadcasting
     for peer_id <- peers_ids, do:
-      send peer_id, { :broadcast, 1000, 3000 }
+      send peer_id, { :broadcast, 1000, 1000 }
       #(i) {:broadcast, 1000, 3000}
       #(ii) {:broadcast, 10_000_000, 3000}
 
