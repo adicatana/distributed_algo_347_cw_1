@@ -1,11 +1,12 @@
 defmodule Peer do
   def main(parent) do
+
     lpl_reliability = 100
 
     app = spawn fn -> App.main() end
     rb = spawn fn -> RB.main() end
     beb = spawn fn -> Beb.main() end
-    pl = spawn fn -> LPL.main(reliability) end
+    pl = spawn fn -> LPL.main(lpl_reliability) end
 
     send app, {:bind, rb}
     send rb, {:bind, app, beb}

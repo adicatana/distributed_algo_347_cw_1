@@ -16,19 +16,9 @@ defmodule MainSystem do
 
     # Start broadcasting
     for peer <- peers, do:
-      send peer, {:broadcast, 10_000_000, 3000}
+      send peer, {:broadcast, 10, 9000}
       #(i) {:broadcast, 1000, 3000}
       #(ii) {:broadcast, 10_000_000, 3000}
 
-    # Have peer 3 exiting after 5 seconds
-    # send death signal after 5 seconds and extend peer to be able to handle it
-    timeout = 2000
-    process = 3
-    # should we send a kill signal instead? Process.exit(pid, :kill)
-    receive do
-    after
-      timeout ->
-        send Enum.at(pl_ids, process - 1), {:death}
-    end
   end
 end

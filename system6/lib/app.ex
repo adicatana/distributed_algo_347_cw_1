@@ -22,35 +22,39 @@ defmodule App do
 
   def broadcast(rb, peers, msg_report, broadcasts_left) do
     if broadcasts_left > 0 do
-      send rb, {:rb_broadcast, ""} # include pid and sequence number so that it's unique?
-      next beb, peers, msg_report, broadcasts_left - 1
+      send rb, {:rb_broadcast, "#{inspect self()}-#{broadcasts_left}"} # include pid and sequence number so that it's unique?
+      # As far as the app is concerned, messages were broadcast
+      msg_report = Enum.reduce(peers, msg_report, fn peer, acc ->
+        Map.update(acc, peer, {0,0}, fn {x, y} -> {x + 1, y} end)
+      end)
+
+      next rb, peers, msg_report, broadcasts_left - 1
     end
-    next beb, peers, msg_report, broadcasts_left
+    next rb, peers, msg_report, broadcasts_left
   end
 
   # The problem with previous approaches is that even though the death message arrives it is back in the mailbox. Therefore it takes time to pattern matchit
-  def next rb, peers, msg_report, broadcasts_left do
+  defp next rb, peers, msg_report, broadcasts_left do
     # Immediately stop if any of the two messages are in mailbox
     receive do
-      {:death} ->
-        IO.puts("I died #{inspect self()}")
-        printResults(peers, msg_report)
-        exit(:kill)
       {:timeout} ->
         send rb, {:timeout}
         printResults peers, msg_report
     after
-      0 -> 0
+      0 ->
+        receive do
+          {:rb_deliver, from, msg} ->
+            msg_report = Map.update(msg_report, from, {0, 0}, fn {x, y} -> {x, y + 1} end)
+            broadcast(rb, peers, msg_report, broadcasts_left)
+        after
+          0 -> next rb, peers, msg_report, broadcasts_left
+        end
     end
 
-    receive do
-      {:rb_deliver, from, msg} ->
-        msg_report = Map.update(msg_report, from, {0, 0}, fn {x, y} -> {x, y + 1} end)
-        broadcast(beb, peers, msg_report, broadcasts_left)
-      {:rb_send, to} ->
-        msg_report = Map.update(msg_report, to, {0, 0}, fn {x, y} -> {x + 1, y} end)
-        next beb, peers, msg_report, broadcasts_left
-    end
+# We used to do this, network congestion, this is app specific
+#      {:rb_send, to} ->
+#        msg_report = Map.update(msg_report, to, {0, 0}, fn {x, y} -> {x + 1, y} end)
+#        next beb, peers, msg_report, broadcasts_left
   end
 
   defp printResults peers, msg_report do

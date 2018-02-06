@@ -6,20 +6,11 @@ defmodule LPL do
   end
 
   def next(beb, reliability) do
-    # death should be first, otherwise other clauses will take priority
     receive do
-      {:death} ->
-        send beb, {:death}
-        exit(:kill)
-    after
-      0 -> 0
-    end
-
-    receive do
-      # get from app component
-      {:pl_send, from, msg} ->
+      # get from beb component
+      {:pl_send, to, msg} ->
         if Enum.random(1..100) <= reliability do
-          send dest, {:msg, from, msg}
+          send to, {:msg, self(), msg} # TODO is self() really correct here?
         end
       {:msg, from, msg} ->
         send beb, {:pl_deliver, from, msg}

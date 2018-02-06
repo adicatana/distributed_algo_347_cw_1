@@ -11,15 +11,18 @@ defmodule Beb do
 
   defp next(pl, peers, rb) do
     receive do
-      {:death} ->
-        send rb, {:death}
-        exit(:kill)
       {:timeout} ->
         exit(:normal)
-      {:pl_deliver, from, msg} ->
-        send rb, {:beb_deliver, from, msg}
-        next(pl, peers, rb)
-      {:beb_broadcast, msg} -> broadcast(pl, peers, rb, msg)
+    after
+      0 ->
+        receive do
+          {:pl_deliver, from, msg} ->
+            send rb, {:beb_deliver, from, msg}
+            next pl, peers, rb
+          {:beb_broadcast, msg} -> broadcast(pl, peers, rb, msg)
+        after
+          0 -> next pl, peers, rb
+        end
     end
   end
 
@@ -27,25 +30,21 @@ defmodule Beb do
   defp broadcast(pl, peers, rb, msg) do
     Enum.each(peers, fn peer ->
       receive do
-        {:death} ->
-          send rb, {:death}
-          exit(:normal)
         {:timeout} ->
           exit(:normal)
       after
         0 -> 0
       end
 
+      send pl, {:pl_send, peer, msg}
+
       receive do
           {:pl_deliver, from, msg} ->
             send rb, {:beb_deliver, from, msg}
       after
-        0 -> :noop
+        0 -> 0
       end
-
-      send pl, {:pl_send, peer, msg}
-      send rb, {:beb_send, peer}
     end)
-    next(pl, peers, app)
+    next pl, peers, rb
   end
 end
