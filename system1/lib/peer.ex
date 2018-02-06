@@ -1,14 +1,14 @@
 defmodule Peer do
   def start do
     receive do
-      {:bind, peers} ->
+      { :bind, peers } ->
         wait_broadcast peers
     end
   end
 
   defp wait_broadcast peers do
     receive do
-      {:broadcast, broadcasts_left, timeout} ->
+      { :broadcast, broadcasts_left, timeout } ->
         initialMap = Map.new(peers, fn peer ->
           {peer, {0, 0}}
         end)
@@ -27,18 +27,18 @@ defmodule Peer do
 
     msg_report = Enum.reduce(peers, msg_report, fn peer, acc ->
       receive do
-        {:timeout} ->
+        { :timeout } ->
           printResults peers, acc
-        {:msg, pid} ->
+        { :msg, pid } ->
           acc = Map.update(acc, pid, {0, 0}, fn {x, y} -> {x, y + 1} end)
       after
         # Need to check the mailbox, but do
         # not need to wait for messages/timeout
-        0 -> :noop
+        0 -> 0
       end
 
       # Broadcasting
-      send peer, {:msg, self()}
+      send peer, { :msg, self() }
       Map.update(acc, peer, {0, 0}, fn {x, y} -> {x + 1, y} end)
     end)
 
@@ -49,9 +49,9 @@ defmodule Peer do
   # just wait for other messages or timeout
   defp receive_all_messages peers, msg_report do
     receive do
-      {:timeout} ->
+      { :timeout } ->
         printResults peers, msg_report
-      {:msg, pid} ->
+      { :msg, pid } ->
         msg_report = Map.update(msg_report, pid, {0, 0}, fn {x, y} -> {x, y + 1} end)
         receive_all_messages peers, msg_report
     end

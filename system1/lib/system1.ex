@@ -7,11 +7,11 @@ defmodule System1 do
 
     # Bind peers
     for peer_id <- peers_ids, do:
-      send peer_id, {:bind, peers_ids}
+      send peer_id, { :bind, peers_ids }
 
     # Start broadcasting
     for peer_id <- peers_ids, do:
-      send peer_id, {:broadcast, 100, 3000}
+      send peer_id, { :broadcast, 100, 3000 }
 
   end
 end
