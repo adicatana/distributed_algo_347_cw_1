@@ -4,60 +4,60 @@
 # timeout occurs the APP has to notify the beb to stop and print
 # the information it has stored
 defmodule App do
-  def start do
+  def start peer_id do
     receive do
-      {:bind_beb, beb} ->
-        wait_peers beb
+      { :bind_beb, beb } ->
+        wait_peers beb, peer_id
     end
   end
 
-  defp wait_peers beb do
+  defp wait_peers beb, peer_id do
     receive do
-      {:bind_peers, peers} ->
-        wait_broadcast beb, peers
+      { :bind_peers, peers } ->
+        wait_broadcast beb, peers, peer_id
     end
   end
 
-  defp wait_broadcast beb, peers do
+  defp wait_broadcast beb, peers, peer_id do
     receive do
-      {:broadcast, broadcasts_left, timeout} ->
+      { :broadcast, broadcasts_left, timeout } ->
         app_id = self()
         spawn fn -> Timeout.start app_id, timeout end
    
         msg_report = Map.new(peers, fn peer ->
           {peer, {0, 0}}
         end)
-        broadcast beb, peers, msg_report, broadcasts_left
+        broadcast beb, peers, msg_report, broadcasts_left, peer_id
     end
   end
 
-  def broadcast(beb, peers, msg_report, broadcasts_left) do
+  def broadcast beb, peers, msg_report, broadcasts_left, peer_id do
     if broadcasts_left > 0 do
-      send beb, {:beb_broadcast}
-      next beb, peers, msg_report, broadcasts_left - 1
+      send beb, { :beb_broadcast }
+      next beb, peers, msg_report, broadcasts_left - 1, peer_id
     end
-    next beb, peers, msg_report, broadcasts_left
+    next beb, peers, msg_report, broadcasts_left, peer_id
   end
 
-  def next beb, peers, msg_report, broadcasts_left do
+  def next beb, peers, msg_report, broadcasts_left, peer_id do
     receive do
-      {:timeout} ->
-        send beb, {:timeout}
-        printResults peers, msg_report
-      {:beb_deliver, from} ->
+      { :timeout } ->
+        send beb, { :timeout }
+        printResults peers, msg_report, peer_id
+      { :beb_deliver, from } ->
         msg_report = Map.update(msg_report, from, {0, 0}, fn {x, y} -> {x, y + 1} end)
-        broadcast(beb, peers, msg_report, broadcasts_left)
-      {:beb_send, to} ->
+        broadcast beb, peers, msg_report, broadcasts_left, peer_id
+      { :beb_send, to } ->
         msg_report = Map.update(msg_report, to, {0, 0}, fn {x, y} -> {x + 1, y} end)
-        next beb, peers, msg_report, broadcasts_left
+        next beb, peers, msg_report, broadcasts_left, peer_id
     end
   end
 
-  defp printResults peers, msg_report do
+  defp printResults peers, msg_report, peer_id do
     status = Enum.reduce peers, inspect(self()), fn peer, acc ->
               "#{acc} #{inspect(Map.get(msg_report, peer))}"
             end
     IO.puts status
-    exit(:normal)
+    send peer_id, { :timeout }
   end
 end

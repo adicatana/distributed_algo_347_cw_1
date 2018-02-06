@@ -1,25 +1,25 @@
 defmodule Beb do
   def start do
     receive do
-      {:bind, pl, app} ->
+      { :bind, pl, app } ->
         wait_pls pl, app
     end
   end
 
   defp wait_pls pl, app do
     receive do
-      {:bind_peers, peers} ->
+      { :bind_peers, peers } ->
         next pl, peers, app
     end    
   end
 
   defp next pl, peers, app do
     receive do
-      {:timeout} -> :noop
-      {:pl_deliver, from} ->
-        send app, {:beb_deliver, from}
+      { :timeout } -> :noop
+      { :pl_deliver, from } ->
+        send app, { :beb_deliver, from }
         next pl, peers, app 
-      {:beb_broadcast} -> broadcast pl, peers, app 
+      { :beb_broadcast } -> broadcast pl, peers, app 
       # We might want to add a message here
     end
   end
@@ -29,15 +29,15 @@ defmodule Beb do
   defp broadcast pl, peers, app do
     Enum.each(peers, fn peer ->
       receive do
-          {:timeout} -> exit(:normal)
-          {:pl_deliver, from} ->
-            send app, {:beb_deliver, from}
+          { :timeout } -> exit(:normal)
+          { :pl_deliver, from } ->
+            send app, { :beb_deliver, from }
       after
-        0 -> :noop
+        0 -> 0
       end
 
-      send pl, {:pl_send, peer, pl}
-      send app, {:beb_send, peer}
+      send pl, { :pl_send, peer, pl }
+      send app, { :beb_send, peer }
     end)
     next pl, peers, app
   end

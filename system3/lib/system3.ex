@@ -10,17 +10,17 @@ defmodule System3 do
 
     pl_ids = for _ <- 0..no_peers - 1 do
       receive do
-        {:pl, pl_id} -> pl_id
+        { :pl, pl_id } -> pl_id
       end
     end
 
     # Bind peers
     for peer_id <- peers_ids, do:
-      send peer_id, {:bind, pl_ids}
+      send peer_id, { :bind, pl_ids }
 
     # Start broadcasting
     for peer_id <- peers_ids, do:
-      send peer_id, {:broadcast, 1000, 3000}
+      send peer_id, { :broadcast, 10_000_000, 9000 }
       #(i) {:broadcast, 1000, 3000}
       #(ii) {:broadcast, 10_000_000, 3000}
 
