@@ -1,20 +1,20 @@
 defmodule PL do
-  def main do
+  def start do
     receive do
-      {:bind_app, app} -> next app
+      {:bind_app, app} -> 
+        next app
     end
   end
 
-  def next(app) do
+  def next app do
     receive do
-      # get from app component
+      # Get from APP component
       {:pl_send, dest, msg} ->
-        # What do they send between them brah?
         send dest, {:msg, msg}
-      # Msg from other PL component, this should be renamed?
+      # Msg from other PL component
       {:msg, msg} ->
         send app, {:pl_deliver, msg}
     end
-    next(app)
+    next app
   end
 end

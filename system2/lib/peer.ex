@@ -1,7 +1,7 @@
 defmodule Peer do
-  def main(parent) do
-    app = spawn fn -> App.main() end
-    pl = spawn fn -> PL.main() end
+  def start parent do
+    app = spawn fn -> App.start() end
+    pl = spawn fn -> PL.start() end
 
     send app, {:bind_pl, pl}
     send pl, {:bind_app, app}

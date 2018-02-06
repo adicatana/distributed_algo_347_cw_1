@@ -1,22 +1,26 @@
-defmodule MainSystem do
+defmodule System2 do
   def start do
-    nPeers = 5
-    me = self()
-    peers = for _ <- 0..nPeers - 1, do: spawn fn -> Peer.main(me) end
+    no_peers = 5
 
-    pl_ids = for _ <- 0..nPeers - 1 do
+    main_system = self()
+    
+    peers_ids = for _ <- 0..no_peers - 1, do: 
+      spawn fn -> Peer.start(main_system) 
+    end
+
+    pl_ids = for _ <- 0..no_peers - 1 do
       receive do
         {:pl, pl_id} -> pl_id
       end
     end
 
     # Bind peers
-    for peer <- peers, do:
-      send peer, {:bind, pl_ids}
+    for peer_id <- peers_ids, do:
+      send peer_id, {:bind, pl_ids}
 
     # Start broadcasting
-    for peer <- peers, do:
-      send peer, {:broadcast, 1000, 3000}
+    for peer_id <- peers_ids, do:
+      send peer_id, {:broadcast, 1000, 3000}
       #(i) {:broadcast, 1000, 3000}
       #(ii) {:broadcast, 10_000_000, 3000}
 
