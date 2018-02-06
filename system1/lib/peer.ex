@@ -1,5 +1,5 @@
 defmodule Peer do
-  def main do
+  def start do
     receive do
       {:bind, peers} ->
         wait_broadcast peers
