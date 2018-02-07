@@ -2,22 +2,30 @@ defmodule Peer do
   def start parent, death_moment, lpl_reliability, lazy do
 
     peer_id = self()
+    pl = spawn_link fn -> LPL.start(lpl_reliability) end
+    beb = spawn_link fn -> Beb.start() end
     app = spawn_link fn -> App.start(peer_id) end
-    rb = nil # dont do this in fucntional programming
-    pfd = nil
-    pl2 = nil
+
+    rb =
     if lazy do
-      rb = spawn_link fn -> LazyRB.start() end
+      spawn_link fn -> LazyRB.start() end
     else
-      rb = spawn_link fn -> RB.start() end
+      spawn_link fn -> RB.start() end
     end
 
-    beb = spawn_link fn -> Beb.start() end
-    pl = spawn_link fn -> LPL.start(lpl_reliability) end
+    delay = 1000 # this could be passed as an argument
+    pfd =
     if lazy do
-      delay = 50 # this might have to move outside this module
-      pfd = spawn_link fn -> PFD.start(delay) end
-      pl2 = spawn_link fn -> LPL.start(lpl_reliability) end
+      spawn_link fn -> PFD.start(delay) end
+    else
+      nil
+    end
+
+    pl2 =
+    if lazy do
+      spawn_link fn -> LPL.start(lpl_reliability) end
+    else
+      nil
     end
 
     spawn fn ->
@@ -36,10 +44,13 @@ defmodule Peer do
     end
 
     send app, {:bind, rb}
-    send rb, {:bind, app, beb}
+    unless lazy do
+      send rb, {:bind, app, beb}
+    end
     send beb, {:bind, pl, rb}
     send pl, {:bind, beb}
     send parent, {:pl, pl}
+
 
     if lazy do
       send parent, {:pfd_pl, pl2}
@@ -54,15 +65,20 @@ defmodule Peer do
         send app, {:bind_peers, pl_ids}
         # Need to know to be able to broacast messages to everyone
         send beb, {:bind_peers, pl_ids}
+
+        if lazy do
+          send rb, {:bind, app, beb, pl, pl_ids}
+
+          # if we are using lazy broadcast we need to bind the pfd PLs as well
+          receive do
+            { :bind_pfd_ids, pfd_pls } ->
+              # map from pl_ids to pfd_pls
+              process_map = Enum.zip(pfd_pls, pl_ids) |> Enum.into(%{})
+              send pfd, { :bind_peers, pfd_pls, process_map }
+          end
+        end
     end
 
-    # if we are using lazy broadcast we need to bind the pfd PLs as well
-    if lazy do
-      receive do
-        { :bind_pfd_ids, pfd_pls } ->
-          send pfd, { :bind_peers, pfd_pls }
-      end
-    end
 
 
     # Forward broadcasting information to App component that acts as Peer
@@ -74,8 +90,15 @@ defmodule Peer do
     # Wait for a timeout message by the app component and the exit to
     # stop all spawn linked processes
     receive do
-      {:timeout} -> 0
+      {:timeout} ->
+        Process.exit(app, :kill)
+        Process.exit(rb, :kill)
+        Process.exit(beb, :kill)
+        Process.exit(pl, :kill)
+        if lazy do
+          Process.exit(pfd, :kill)
+          Process.exit(pl2, :kill)
+        end
     end
-
   end
 end

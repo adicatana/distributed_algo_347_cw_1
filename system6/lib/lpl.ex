@@ -10,7 +10,7 @@ defmodule LPL do
       # get from beb component
       {:pl_send, to, msg} ->
         if Enum.random(1..100) <= reliability do
-          send to, {:msg, self(), msg} # TODO is self() really correct here?
+          send to, {:msg, self(), msg}
         end
       {:msg, from, msg} ->
         send beb, {:pl_deliver, from, msg}
