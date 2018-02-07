@@ -47,18 +47,11 @@ defmodule App do
   def next beb, peers, msg_report, broadcasts_left, peer_id do
     receive do
       { :timeout } ->
+        send beb, { :timeout }
         printResults peers, msg_report, peer_id
-    after
-      0 -> 0
-    end
-
-    receive do
       { :beb_deliver, from } ->
         msg_report = Map.update(msg_report, from, {0, 0}, fn {x, y} -> {x, y + 1} end)
         broadcast beb, peers, msg_report, broadcasts_left, peer_id
-      { :beb_send, to } ->
-        msg_report = Map.update(msg_report, to, {0, 0}, fn {x, y} -> {x + 1, y} end)
-        next beb, peers, msg_report, broadcasts_left, peer_id
     end
   end
 
