@@ -25,7 +25,7 @@ defmodule System6 do
 
     # Process 3 is going to die in 5 milliseconds
     going_to_die = %{3 => 5}
-    lazy = true
+    lazy = false
 
     peers_ids =
     if local do

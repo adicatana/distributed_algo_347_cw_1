@@ -56,7 +56,7 @@ defmodule App do
             msg_report = Map.update(msg_report, from, {0, 0}, fn {x, y} -> {x, y + 1} end)
             broadcast rb, peers, msg_report, broadcasts_left, peer_id
         after
-          0 -> next rb, peers, msg_report, broadcasts_left, peer_id
+          0 -> broadcast rb, peers, msg_report, broadcasts_left, peer_id
         end
     end
   end

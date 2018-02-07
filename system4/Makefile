@@ -3,7 +3,7 @@
 PEERS = 5
 MAX_BROADCASTS = 1000
 TIMEOUT = 3000
-LPL_RELIABILITY = 50
+LPL_RELIABILITY = 0
 
 MAIN    = System4.main
 MAIN_NET = System4.main_net
@@ -11,7 +11,7 @@ MAIN_NET = System4.main_net
 PROJECT = da347
 NETWORK = $(PROJECT)_network
 
-COMPOSE = docker-compose -p $(PROJECT) 
+COMPOSE = docker-compose -p $(PROJECT)
 
 LOCAL	 = mix run --no-halt -e $(MAIN) $(PEERS) $(MAX_BROADCASTS) $(TIMEOUT) $(LPL_RELIABILITY)
 COMPOSE  = MAIN=$(MAIN_NET) PEERS=$(PEERS) MAX_BROADCASTS=$(MAX_BROADCASTS) TIMEOUT=$(TIMEOUT) LPL_RELIABILITY=$(LPL_RELIABILITY) docker-compose -p $(PROJECT)
@@ -25,11 +25,11 @@ run:
 clean:
 	mix clean
 
-build:	
+build:
 	$(COMPOSE) build
 
-up:	
-	$(COMPOSE) up 
+up:
+	$(COMPOSE) up
 
 down:
 	$(COMPOSE) down
@@ -39,13 +39,13 @@ show:
 	@echo ----------------------
 	@make ps
 	@echo ----------------------
-	@make network 
+	@make network
 
 show2:
 	@echo ----------------------
 	@make ps2
 	@echo ----------------------
-	@make network 
+	@make network
 
 ps:
 	docker ps -a --format 'table {{.Names}}\t{{.Image}}'
@@ -57,7 +57,7 @@ inspect:
 	docker network inspect $(NETWORK)
 
 netrm:
-	docker network rm $(NETWORK) 
+	docker network rm $(NETWORK)
 conrm:
 	docker rm $(ID)
 

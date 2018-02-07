@@ -14,7 +14,8 @@ defmodule LazyRB do
         send beb, { :beb_broadcast, { :rb_data, process_id, msg } }
         next app, beb, correct, process_id, process_msgs
       { :pfd_crash, crashedP } ->
-        IO.puts "#{inspect crashedP} has crashed!"
+        # for debugging
+        # IO.puts "#{inspect crashedP} has crashed!"
         for msg <- process_msgs[crashedP], do: # get crashedP's msgs
           send beb, { :beb_broadcast, { :rb_data, crashedP, msg } }
         next app, beb, List.delete(correct, crashedP), process_id, process_msgs

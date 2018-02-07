@@ -37,6 +37,7 @@ defmodule App do
       msg_report = Enum.reduce(peers, msg_report, fn peer, acc ->
         Map.update(acc, peer, {0, 0}, fn {x, y} -> {x + 1, y} end)
       end)
+
       next beb, peers, msg_report, broadcasts_left - 1, peer_id
     end
     next beb, peers, msg_report, broadcasts_left, peer_id
@@ -50,6 +51,8 @@ defmodule App do
       { :beb_deliver, from } ->
         msg_report = Map.update(msg_report, from, {0, 0}, fn {x, y} -> {x, y + 1} end)
         broadcast beb, peers, msg_report, broadcasts_left, peer_id
+    after
+      0 -> broadcast beb, peers, msg_report, broadcasts_left, peer_id
     end
   end
 
