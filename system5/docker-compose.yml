@@ -1,0 +1,70 @@
+# Panayiotis Panayiotou (pp3414) and Adrian Catana (ac7815)
+
+version: "3.4"
+
+x-common:
+  &defaults
+    image: elixir:alpine
+    volumes:
+      - .:/project
+    working_dir: /project
+    networks:
+      - network
+
+networks:
+  network:
+    driver: bridge
+
+services:
+  container0.localdomain:
+    container_name: container0
+    command: > 
+      elixir --name node0@container0.localdomain --cookie pass 
+             -S mix run --no-halt -e ${MAIN} ${PEERS} ${MAX_BROADCASTS} ${TIMEOUT} ${LPL_RELIABILITY}
+    depends_on:
+      - container1.localdomain
+      - container2.localdomain
+      - container3.localdomain
+      - container4.localdomain
+      - container5.localdomain                  
+    <<: *defaults
+
+  container1.localdomain:
+    container_name: container1
+    command: > 
+      elixir --name node1@container1.localdomain --cookie pass 
+             -S mix run --no-halt 
+    <<: *defaults
+
+  container2.localdomain:
+    container_name: container2
+    command: >
+      elixir --name node2@container2.localdomain --cookie pass 
+             -S mix run --no-halt 
+    <<: *defaults
+
+  container3.localdomain:
+    container_name: container3
+    command: > 
+      elixir --name node3@container3.localdomain --cookie pass 
+             -S mix run --no-halt 
+    <<: *defaults
+
+  container4.localdomain:
+    container_name: container4
+    command: > 
+      elixir --name node4@container4.localdomain --cookie pass 
+             -S mix run --no-halt 
+    <<: *defaults
+
+  container5.localdomain:
+    container_name: container5
+    command: > 
+      elixir --name node5@container5.localdomain --cookie pass 
+             -S mix run --no-halt 
+    <<: *defaults        
+
+# MISC
+# - anchors only available in version 3.5, ditto x- services
+# - macvlan network driver also works
+# - tabs are a no-no, use spaces

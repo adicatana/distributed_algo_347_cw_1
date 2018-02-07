@@ -1,19 +1,40 @@
 defmodule System6 do
-  def start do
-    # Get this arguments from makefile
-    # Number of peers
-    no_peers = 5
-    # Process 3 is going to die in 5 milliseconds
-    goingTodie = %{3 => 5}
-    # LPL reliability
-    lpl_reliability = 100
-    # Lazy
-    lazy = true
 
+  def main do
+    no_peers = String.to_integer(Enum.at(System.argv(), 0))
+    max_broadcasts = String.to_integer(Enum.at(System.argv(), 1))
+    timeout = String.to_integer(Enum.at(System.argv(), 2))        
+    lpl_reliability = String.to_integer(Enum.at(System.argv(), 3))
 
-    system = self()
-    peers_ids = for i <- 0..no_peers - 1, do:
-      spawn fn -> Peer.start(system, Map.get(goingTodie, i + 1, :infinity), lpl_reliability, lazy)
+    start no_peers, max_broadcasts, timeout, lpl_reliability, true
+  end
+
+  def main_net do
+    no_peers = String.to_integer(Enum.at(System.argv(), 0))
+    max_broadcasts = String.to_integer(Enum.at(System.argv(), 1))
+    timeout = String.to_integer(Enum.at(System.argv(), 2))        
+    lpl_reliability = String.to_integer(Enum.at(System.argv(), 3))
+
+    start no_peers, max_broadcasts, timeout, lpl_reliability, false
+  end
+
+  defp start no_peers, max_broadcasts, timeout, lpl_reliability, local do
+    main_system = self()
+    
+    # Process 3 is going to die in 5 milliseconds    
+    going_to_die = %{3 => 5}
+
+    lazy = false
+
+    peers_ids = 
+    if local do
+      for i <- 1..no_peers, do: 
+        spawn fn -> Peer.start(main_system, Map.get(going_to_die, i, :infinity), lpl_reliability, lazy) 
+      end
+    else
+      for i <- 1..no_peers, do: 
+        Node.spawn :'node#{i}@container#{i}.localdomain', fn -> Peer.start(main_system, Map.get(going_to_die, i, :infinity), lpl_reliability, lazy) 
+      end
     end
 
     pl_ids = for _ <- 0..no_peers - 1 do
@@ -41,9 +62,9 @@ defmodule System6 do
 
     # Start broadcasting
     for peer_id <- peers_ids, do:
-      send peer_id, { :broadcast, 100, 3000 }
+      send peer_id, { :broadcast, max_broadcasts, timeout }
       #(i) {:broadcast, 1000, 3000}
       #(ii) {:broadcast, 10_000_000, 3000}
-
   end
+
 end
