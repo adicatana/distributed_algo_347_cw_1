@@ -1,3 +1,4 @@
+# Panayiotis Panayiotou (pp3414) and Adrian Catana (ac7815)
 defmodule LPL do
   def start reliability do
     receive do

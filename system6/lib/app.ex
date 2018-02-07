@@ -1,3 +1,4 @@
+# Panayiotis Panayiotou (pp3414) and Adrian Catana (ac7815)
 # Handle timeout and broadcast limit but it can't count the messages sent since it's not the one sending them!
 # Messages received and sent are coutned in beb and if a timeout occurs the App has to notify the beb to stop and print
 # the information it has stored

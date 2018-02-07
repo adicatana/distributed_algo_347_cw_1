@@ -1,3 +1,4 @@
+# Panayiotis Panayiotou (pp3414) and Adrian Catana (ac7815)
 defmodule RB do
   def start do
     receive do

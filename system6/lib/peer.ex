@@ -1,3 +1,4 @@
+# Panayiotis Panayiotou (pp3414) and Adrian Catana (ac7815)
 defmodule Peer do
   def start parent, death_moment, lpl_reliability, lazy do
 
