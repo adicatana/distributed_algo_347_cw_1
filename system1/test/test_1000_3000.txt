@@ -1,0 +1,13 @@
+mix run --no-halt -e System1.main 5 1000 3000
+
+BREAK: (a)bort (c)ontinue (p)roc info (i)nfo (l)oaded
+       (v)ersion (k)ill (D)b-tables (d)istribution
+mix run --no-halt -e System1.main 5 1000 3000
+#PID<0.100.0> {1000, 1000} {1000, 1000} {1000, 1000} {1000, 1000} {1000, 1000}
+#PID<0.103.0> {1000, 1000} {1000, 1000} {1000, 1000} {1000, 1000} {1000, 1000}
+#PID<0.99.0> {1000, 1000} {1000, 1000} {1000, 1000} {1000, 1000} {1000, 1000}
+#PID<0.101.0> {1000, 1000} {1000, 1000} {1000, 1000} {1000, 1000} {1000, 1000}
+#PID<0.102.0> {1000, 1000} {1000, 1000} {1000, 1000} {1000, 1000} {1000, 1000}
+
+BREAK: (a)bort (c)ontinue (p)roc info (i)nfo (l)oaded
+       (v)ersion (k)ill (D)b-tables (d)istribution

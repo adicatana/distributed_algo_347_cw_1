@@ -20,8 +20,7 @@ defmodule App do
   defp wait_broadcast beb, peers, peer_id do
     receive do
       { :broadcast, broadcasts_left, timeout } ->
-        app_id = self()
-        spawn fn -> Timeout.start app_id, timeout end
+        :timer.send_after(timeout, { :timeout })
         msg_report = Map.new(peers, fn peer ->
           {peer, {0, 0}}
         end)

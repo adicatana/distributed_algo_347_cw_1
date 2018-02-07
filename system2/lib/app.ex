@@ -20,9 +20,8 @@ defmodule App do
           {peer, {0, 0}}
         end)
 
-        app_id = self()
+        :timer.send_after(timeout, { :timeout })
 
-        spawn fn -> Timeout.start app_id, timeout end
         next pl, peers, initialMap, broadcasts_left, peer_id
     end
   end

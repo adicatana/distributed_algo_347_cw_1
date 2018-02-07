@@ -1,0 +1,9 @@
+MAIN=System1.main_net PEERS=5 MAX_BROADCASTS=1000 TIMEOUT=3000 docker-compose -p da347 up 
+Attaching to container5, container1, container2, container4, container3, container0
+[34mcontainer0                |[0m #PID<0.109.0> {1000, 1000} {1000, 1000} {1000, 1000} {1000, 1000} {1000, 1000}
+[34mcontainer0                |[0m #PID<0.109.0> {1000, 1000} {1000, 1000} {1000, 1000} {1000, 1000} {1000, 1000}
+[34mcontainer0                |[0m #PID<0.109.0> {1000, 1000} {1000, 1000} {1000, 1000} {1000, 1000} {1000, 1000}
+[34mcontainer0                |[0m #PID<0.109.0> {1000, 1000} {1000, 1000} {1000, 1000} {1000, 1000} {1000, 1000}
+[34mcontainer0                |[0m #PID<0.109.0> {1000, 1000} {1000, 1000} {1000, 1000} {1000, 1000} {1000, 1000}
+Gracefully stopping... (press Ctrl+C again to force)
+Makefile:31: recipe for target 'up' failed

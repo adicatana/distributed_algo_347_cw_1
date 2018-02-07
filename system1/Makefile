@@ -1,9 +1,8 @@
 # Panayiotis Panayiotou (pp3414) and Adrian Catana (ac7815)
 
-
 PEERS = 5
-MAX_BROADCASTS = 100
-TIMEOUT = 3000
+MAX_BROADCASTS = 1000
+TIMEOUT = 0
 
 MAIN    = System1.main
 MAIN_NET = System1.main_net
