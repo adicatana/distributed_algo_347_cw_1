@@ -4,7 +4,7 @@ defmodule PFD do
       { :bind, pl, rb } ->
         receive do
           { :bind_peers, peers, process_map } ->
-            Timeout.start self(), delay
+            :timer.send_after(delay, {:timeout})
             # Added a map from pfd PLs to id of the process so that
             # we can report which process crashed
             next pl, rb, peers, delay, MapSet.new(peers), MapSet.new, process_map
@@ -33,7 +33,7 @@ defmodule PFD do
         end
 
         for p <- alive, do: send pl, { :pl_send, p, :heartbeat_request }
-        Timeout.start self(), delay
+        :timer.send_after(delay, {:timeout})
         next pl, rb, alive, delay, MapSet.new, MapSet.union(detected, MapSet.new(more_detected)), process_map
     end # receive
   end # next

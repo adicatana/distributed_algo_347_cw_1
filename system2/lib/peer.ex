@@ -1,3 +1,4 @@
+# Panayiotis Panayiotou (pp3414) and Adrian Catana (ac7815)
 defmodule Peer do
   def start parent do
 
@@ -17,13 +18,14 @@ defmodule Peer do
 
     # Forward broadcasting information to App component that acts as Peer
     receive do
-      { :broadcast, broadcasts_left, timeout } -> 
+      { :broadcast, broadcasts_left, timeout } ->
         send app, { :broadcast, broadcasts_left, timeout }
     end
 
     receive do
-      { :timeout }
-        -> 0
+      { :timeout } ->
+        Process.exit(app, :kill)
+        Process.exit(pl, :kill)
     end
 
   end

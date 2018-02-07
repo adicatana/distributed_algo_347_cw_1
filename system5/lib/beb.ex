@@ -19,7 +19,7 @@ defmodule Beb do
       { :pl_deliver, from } ->
         send app, { :beb_deliver, from }
         next pl, peers, app
-      { :beb_broadcast } -> 
+      { :beb_broadcast } ->
         broadcast pl, peers, app
     end
   end
@@ -35,7 +35,6 @@ defmodule Beb do
       end
 
       send pl, { :pl_send, peer, pl }
-      send app, { :beb_send, peer }
     end)
     next pl, peers, app
   end

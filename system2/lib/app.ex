@@ -1,3 +1,4 @@
+# Panayiotis Panayiotou (pp3414) and Adrian Catana (ac7815)
 defmodule App do
   def start peer_id do
     receive do
@@ -10,7 +11,7 @@ defmodule App do
     receive do
       { :bind_peers, peers } ->
         initiate_broadcast pl, peers, peer_id
-    end    
+    end
   end
 
   defp initiate_broadcast pl, peers, peer_id do
@@ -40,7 +41,7 @@ defmodule App do
             acc = Map.update(acc, pid, {0, 0}, fn {x, y} -> {x, y + 1} end)
       after
         # Need to check the mailbox, but do
-        # not need to wait for messages/timeout      
+        # not need to wait for messages/timeout
         0 -> 0
       end
 

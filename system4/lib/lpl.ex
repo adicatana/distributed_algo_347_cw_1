@@ -1,7 +1,8 @@
+# Panayiotis Panayiotou (pp3414) and Adrian Catana (ac7815)
 defmodule LPL do
   def start reliability do
     receive do
-      { :bind_beb, beb } -> 
+      { :bind_beb, beb } ->
         next beb, reliability
     end
   end

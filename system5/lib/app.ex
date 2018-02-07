@@ -31,13 +31,17 @@ defmodule App do
   def broadcast beb, peers, msg_report, broadcasts_left, peer_id do
     if broadcasts_left > 0 do
       send beb, { :beb_broadcast }
+      # As far as the app is concerned, messages were broadcast so we increment
+      msg_report = Enum.reduce(peers, msg_report, fn peer, acc ->
+        Map.update(acc, peer, {0, 0}, fn {x, y} -> {x + 1, y} end)
+      end)
       next beb, peers, msg_report, broadcasts_left - 1, peer_id
     end
     next beb, peers, msg_report, broadcasts_left, peer_id
   end
 
-  # The problem with previous approaches is that even though the 
-  # death message arrives it is back in the mailbox. Therefore it 
+  # The problem with previous approaches is that even though the
+  # death message arrives it is back in the mailbox. Therefore it
   # takes time to pattern match it
   def next beb, peers, msg_report, broadcasts_left, peer_id do
     receive do
@@ -62,7 +66,7 @@ defmodule App do
               "#{acc} #{inspect(Map.get(msg_report, peer))}"
             end
     IO.puts status
-    send peer_id, { :timeout }    
+    send peer_id, { :timeout }
     exit(:normal)
   end
 end

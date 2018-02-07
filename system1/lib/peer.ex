@@ -1,3 +1,4 @@
+# Panayiotis Panayiotou (pp3414) and Adrian Catana (ac7815)
 defmodule Peer do
   def start do
     receive do
@@ -31,12 +32,11 @@ defmodule Peer do
           printResults peers, acc
       after
         0 ->
-          receive do 
+          receive do
             { :msg, pid } ->
               acc = Map.update(acc, pid, {0, 0}, fn {x, y} -> {x, y + 1} end)
           after
-            # Need to check the mailbox, but do
-            # not need to wait for messages/timeout
+            # We don't need to wait for the messages, we will check in next round
             0 -> 0
           end
       end
@@ -57,7 +57,7 @@ defmodule Peer do
         printResults peers, msg_report
     after
       0 ->
-        receive do 
+        receive do
           { :msg, pid } ->
             msg_report = Map.update(msg_report, pid, {0, 0}, fn {x, y} -> {x, y + 1} end)
             receive_all_messages peers, msg_report

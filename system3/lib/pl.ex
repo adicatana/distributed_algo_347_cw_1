@@ -1,3 +1,4 @@
+# Panayiotis Panayiotou (pp3414) and Adrian Catana (ac7815)
 defmodule PL do
   def start do
     receive do
@@ -11,7 +12,7 @@ defmodule PL do
       # Get from APP component
       { :pl_send, dest, msg } ->
         send dest, { :msg, msg }
-      # Msg from other PL component        
+      # Msg from other PL component
       { :msg, from } ->
         send beb, { :pl_deliver, from }
     end

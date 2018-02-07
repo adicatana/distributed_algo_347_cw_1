@@ -1,7 +1,8 @@
+# Panayiotis Panayiotou (pp3414) and Adrian Catana (ac7815)
 defmodule PL do
   def start do
     receive do
-      { :bind_app, app } -> 
+      { :bind_app, app } ->
         next app
     end
   end
