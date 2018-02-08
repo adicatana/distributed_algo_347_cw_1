@@ -1,58 +1,21 @@
 defmodule Peer do
-  def main do
+  def main(parent) do
+    app = spawn fn -> App.main() end
+    pl = spawn fn -> PL.main() end
+
+    send app, {:bind_pl, pl}
+    send pl, {:bind_app, app}
+    send parent, {:pl, pl}
+
+    # Bind the PLs
     receive do
-      {:bind, peers} ->
-        receive do
-          {:broadcast, broadcasts_left, timeout} ->
-            initialMap = Map.new(peers, fn peer ->
-              {peer, {0, 0}}
-            end)
-
-            me = self()
-            spawn fn -> Timeout.start(me, timeout) end
-            next peers, initialMap, broadcasts_left
-        end
-    end
-  end
-
-  def next peers, msg_report, broadcasts_left do
-    if broadcasts_left <= 0 do
-      receive_all_messages(peers, msg_report)
+      {:bind, pl_ids} -> send app, {:bind_peers, pl_ids}
     end
 
-    msg_report = Enum.reduce(peers, msg_report, fn peer, acc ->
-      receive do
-          {:timeout} ->
-            printResults peers, acc
-          {:msg, pid} ->
-            acc = Map.update(acc, pid, {0, 0}, fn {x, y} -> {x, y + 1} end)
-      after
-        0 -> :noop
-      end
-
-      send peer, {:msg, self()}
-      Map.update(acc, peer, {0, 0}, fn {x, y} -> {x + 1, y} end)
-    end)
-
-    next peers, msg_report, broadcasts_left - 1
-  end
-
-  defp receive_all_messages(peers, msg_report) do
+    # Forward broadcasting information to App component that acts as Peer
     receive do
-      {:timeout} ->
-        printResults peers, msg_report
-      {:msg, pid} ->
-        msg_report = Map.update(msg_report, pid, {0, 0}, fn {x, y} -> {x, y + 1} end)
-        receive_all_messages(peers, msg_report)
+      {:broadcast, broadcasts_left, timeout} -> send app, {:broadcast, broadcasts_left, timeout}
     end
 
-  end
-
-  defp printResults peers, msg_report do
-    status = Enum.reduce peers, inspect(self()), fn peer, acc ->
-              "#{acc} #{inspect(Map.get(msg_report, peer))}"
-            end
-    IO.puts status
-    exit(:normal)
   end
 end
